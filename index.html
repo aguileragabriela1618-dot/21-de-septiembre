@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxia para Valeria</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000000; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer; 
+        }
+        canvas { display: block; }
+        
+        /* PORTADA */
+        #portada {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 1s ease-in-out; 
+            color: white;
+            text-align: center;
+        }
+
+        #portada h1 {
+            color: #ffd700;
+            font-size: 45px;
+            text-shadow: 0px 0px 20px #ffaa00;
+            margin-bottom: 10px;
+        }
+
+        #portada p { font-size: 20px; color: #ddd; margin-bottom: 40px; }
+
+        #btn-empezar {
+            padding: 15px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px #ffaa00;
+            transition: transform 0.2s;
+        }
+        #btn-empezar:hover { transform: scale(1.1); }
+
+        /* TÍTULO PRINCIPAL */
+        #titulo-valeria {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            text-align: center;
+            color: #ffd700;
+            font-size: 38px;
+            font-weight: bold;
+            text-shadow: 0px 0px 15px #ffaa00, 0px 0px 30px #ff6600;
+            z-index: 10;
+            opacity: 0; 
+            transition: opacity 2s ease-in;
+            pointer-events: none;
+        }
+
+        /* INSTRUCCIÓN PARA HACER CLIC */
+        #instruccion {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 2s ease-in;
+            pointer-events: none;
+            animation: palpitar 2s infinite;
+        }
+
+        @keyframes palpitar {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* CONTENEDORES */
+        .flor-contenedor {
+            pointer-events: none;
+        }
+
+        .flor-animada {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: hacer-zoom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transition: opacity 0.5s ease-out; 
+        }
+
+        .emoji-girasol {
+            font-size: 32px;
+            filter: drop-shadow(0px 0px 10px #ffaa00);
+        }
+
+        .texto-click {
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: bold;
+            text-shadow: 0px 0px 10px #ffcc00, 0px 0px 20px #ffaa00; 
+            white-space: nowrap; 
+        }
+
+        @keyframes hacer-zoom {
+            0% { opacity: 0; transform: scale(0); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* EFECTO APAGADO DE TELEVISIÓN (CRT) */
+        #efecto-tele {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: transparent;
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        @keyframes tele-apagar {
+            0% {
+                transform: scale(1, 1);
+                background: rgba(255, 255, 255, 0);
+            }
+            40% {
+                transform: scale(1, 0.002);
+                background: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 0 80px 40px white;
+            }
+            100% {
+                transform: scale(0, 0);
+                background: rgba(0, 0, 0, 1);
+            }
+        }
+
+        .apagar-animacion {
+            animation: tele-apagar 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        /* CONTENEDOR DE LA FOTO FINAL */
+        #contenedor-foto {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); /* Fondo semitransparente para ver la lluvia pasar por detrás */
+            display: flex;
+            flex-direction: row; 
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .bloque-foto-final {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 260;
+        }
+
+        .bloque-foto-final.mostrar {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #contenedor-foto img {
+            width: 260px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 35px #ffaa00;
+            margin-bottom: 15px;
+        }
+
+        #contenedor-foto h2 {
+            color: #ffd700;
+            font-size: 26px;
+            text-shadow: 0px 0px 15px #ffaa00;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* RAMO DE FLORES AL LADO */
+        .ramo-lateral {
+            font-size: 90px;
+            text-shadow: 0 0 30px #ffaa00;
+            animation: flotar-ramo 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes flotar-ramo {
+            0% { transform: translateY(0px) rotate(-5deg); }
+            100% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        /* LLUVIA DE GIRASOLES FINAL (Z-index mayor para que caiga por encima de todo) */
+        .girasol-cayendo {
+            position: absolute;
+            top: -50px;
+            font-size: 32px;
+            z-index: 270;
+            pointer-events: none;
+            animation: caer linear forwards;
+        }
+
+        @keyframes caer {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+                opacity: 0.9;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="titulo-valeria">Para ti Burbujita ✨,¡Te quiero mucho!</div>
+    <div id="instruccion">✨ Haz clic en la pantalla para descubrir la magia ✨</div>
+    <div id="efecto-tele"></div>
+
+    <audio id="musica-fondo" loop>
+        <source src="cancion.mp3" type="audio/mp3">
+    </audio>
+
+    <div id="contenedor-foto">
+        <div class="bloque-foto-final" id="tarjeta-foto">
+            <img src="tu foto.jpg" alt="Mi Burbujita" onerror="this.onerror=null; this.src='tu foto.jpeg';">
+            <h2>Mi Burbujita, la más guapa 🌻</h2>
+        </div>
+        <div class="bloque-foto-final" id="tarjeta-ramo">
+            <div class="ramo-lateral">💐🌻</div>
+            <h2 style="font-size: 22px; margin-top: 15px; color: #fff; text-shadow: 0 0 10px #ffaa00;">¡Flores amarillas para ti!</h2>
+        </div>
+    </div>
+
+    <div id="portada">
+        <h1>¡Feliz Día de las Flores Amarillas!</h1>
+        <p>Un universo diseñado especialmente para ti, Valecita...</p>
+        <button id="btn-empezar">Empezar Viaje</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 12, 36); 
+        camera.lookAt(0, 0, 0); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const labelRenderer = new THREE.CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none'; 
+        document.body.appendChild(labelRenderer.domElement);
+
+        const galaxia = new THREE.Group();
+        scene.add(galaxia);
+
+        const centroOscuro = new THREE.Mesh(new THREE.SphereGeometry(3.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        galaxia.add(centroOscuro);
+
+        const anillo = new THREE.Mesh(new THREE.RingGeometry(3.7, 6, 64), new THREE.MeshBasicMaterial({ color: 0xffaa00, side: THREE.DoubleSide, transparent: true, opacity: 0.7 }));
+        anillo.rotation.x = Math.PI / 2;
+        galaxia.add(anillo);
+
+        const geoEstrellas = new THREE.BufferGeometry();
+        const posEstrellas = new Float32Array(2000 * 3);
+        for(let i = 0; i < 2000 * 3; i++) posEstrellas[i] = (Math.random() - 0.5) * 120;
+        geoEstrellas.setAttribute('position', new THREE.BufferAttribute(posEstrellas, 3));
+        scene.add(new THREE.Points(geoEstrellas, new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 })));
+
+        const geoPolvo = new THREE.BufferGeometry();
+        const posPolvo = new Float32Array(1500 * 3);
+        for(let i = 0; i < 1500; i++) {
+            const radio = 7 + Math.random() * 16; 
+            const angulo = Math.random() * Math.PI * 2;
+            posPolvo[i*3] = Math.cos(angulo) * radio;
+            posPolvo[i*3+1] = (Math.random() - 0.5) * 2.5; 
+            posPolvo[i*3+2] = Math.sin(angulo) * radio;
+        }
+        geoPolvo.setAttribute('position', new THREE.BufferAttribute(posPolvo, 3));
+        galaxia.add(new THREE.Points(geoPolvo, new THREE.PointsMaterial({ color: 0xffd700, size: 0.12 }))); 
+
+        galaxia.rotation.x = 0.25;
+
+        const listaFrases = [
+            "Eres súper especial",
+            "Tu sonrisa ilumina todo",
+            "Gracias por tu amistad",
+            "Brillas como el sol",
+            "Nunca dejes de soñar",
+            "Te quiero muchísimo",
+            "Eres única, Valecita",
+            "Un día lleno de luz para ti",
+            "Nunca dejes de brillar",
+            "¡Para ti con todo mi corazón!"
+        ];
+
+        let pasoActual = 0; 
+        let viajeIniciado = false;
+        let listaElementosCreados = []; 
+        let bloqueado = false; 
+        let intervaloLLuvia = null;
+
+        window.addEventListener('click', (event) => {
+            if (!viajeIniciado || bloqueado || event.target.id === 'btn-empezar') return;
+
+            const divContenedor = document.createElement('div');
+            divContenedor.className = 'flor-contenedor';
+            
+            const textoActual = listaFrases[pasoActual];
+            divContenedor.innerHTML = `
+                <div class="flor-animada">
+                    <span class="emoji-girasol">🌻</span>
+                    <span class="texto-click">${textoActual}</span>
+                </div>
+            `;
+
+            const objeto3D = new THREE.CSS2DObject(divContenedor);
+            
+            const anguloBase = (pasoActual / listaFrases.length) * Math.PI * 2;
+            const angulo = anguloBase + (Math.random() - 0.5) * 0.2;
+            const radioCentro = (pasoActual % 2 === 0) ? 8.5 : 13.5; 
+            const alturaY = (Math.random() - 0.5) * 4.5; 
+            
+            objeto3D.position.set(Math.cos(angulo) * radioCentro, alturaY, Math.sin(angulo) * radioCentro);
+            
+            galaxia.add(objeto3D);
+            listaElementosCreados.push({ objeto3D, div: divContenedor });
+
+            pasoActual++;
+
+            if (pasoActual >= listaFrases.length) {
+                bloqueado = true; 
+
+                setTimeout(() => {
+                    const tele = document.getElementById('efecto-tele');
+                    tele.classList.add('apagar-animacion');
+
+                    listaElementosCreados.forEach(item => {
+                        galaxia.remove(item.objeto3D);
+                        item.div.remove();
+                    });
+                    listaElementosCreados = [];
+
+                    setTimeout(() => {
+                        const contenedorFoto = document.getElementById('contenedor-foto');
+                        contenedorFoto.style.opacity = '1';
+
+                        // Mostrar foto y ramo lateral
+                        setTimeout(() => {
+                            document.getElementById('tarjeta-foto').classList.add('mostrar');
+                        }, 200);
+
+                        setTimeout(() => {
+                            document.getElementById('tarjeta-ramo').classList.add('mostrar');
+                        }, 600);
+
+                        // Iniciar la lluvia de girasoles por toda la pantalla
+                        intervaloLLuvia = setInterval(() => {
+                            crearGirasolCaida();
+                        }, 120);
+
+                        setTimeout(() => {
+                            // Limpiar lluvia y ocultar pantalla final tras unos segundos
+                            clearInterval(intervaloLLuvia);
+                            document.querySelectorAll('.girasol-cayendo').forEach(el => el.remove());
+
+                            contenedorFoto.style.opacity = '0';
+                            document.getElementById('tarjeta-foto').classList.remove('mostrar');
+                            document.getElementById('tarjeta-ramo').classList.remove('mostrar');
+
+                            setTimeout(() => {
+                                pasoActual = 0;
+                                tele.classList.remove('apagar-animacion');
+                                bloqueado = false; 
+                            }, 1500);
+
+                        }, 6500);
+
+                    }, 600); 
+
+                }, 5000); 
+            }
+        });
+
+        function crearGirasolCaida() {
+            const girasol = document.createElement('div');
+            girasol.className = 'girasol-cayendo';
+            girasol.innerHTML = Math.random() > 0.4 ? '🌻' : '🌼';
+            girasol.style.left = Math.random() * window.innerWidth + 'px';
+            
+            const duracion = 3 + Math.random() * 2.5;
+            girasol.style.animationDuration = duracion + 's';
+            
+            document.body.appendChild(girasol);
+
+            setTimeout(() => {
+                girasol.remove();
+            }, duracion * 1000);
+        }
+
+        document.getElementById('btn-empezar').addEventListener('click', () => {
+            const musica = document.getElementById('musica-fondo');
+            musica.play().catch(error => {
+                console.log("Reproducción automática bloqueada por el navegador.");
+            });
+
+            const portada = document.getElementById('portada');
+            portada.style.opacity = '0'; 
+            setTimeout(() => {
+                portada.style.display = 'none'; 
+                document.getElementById('titulo-valeria').style.opacity = '1';
+                document.getElementById('instruccion').style.opacity = '1';
+                viajeIniciado = true; 
+            }, 1000);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            galaxia.rotation.y += 0.002; 
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera); 
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
